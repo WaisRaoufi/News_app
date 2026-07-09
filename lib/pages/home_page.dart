@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newsapp/models/items_modal.dart';
 import '../services/api_service.dart';
-import 'news_model.dart';
 import '../widgets/news_card.dart';
 
 class HomePage extends StatefulWidget {
@@ -35,7 +34,14 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("News App")),
+      backgroundColor: Colors.grey[200],
+      appBar: AppBar(
+        backgroundColor: Colors.grey[400],
+        title: const Text(
+          "News App",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
       body: RefreshIndicator(
         onRefresh: () async {
           setState(() {
@@ -49,8 +55,6 @@ class _HomePageState extends State<HomePage> {
                 itemCount: news.length,
                 itemBuilder: (context, index) {
                   final item = news[index];
-
-                  print(item);
                   return InkWell(
                     onTap: () {
                       showModalBottomSheet(

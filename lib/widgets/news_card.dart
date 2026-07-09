@@ -10,25 +10,31 @@ class NewsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.all(10),
+      color: Colors.white,
+      elevation: 4,
+      margin: const EdgeInsets.all(18),
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.network(
-              item.imageUrl,
-              height: 180,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 180,
-                  width: double.infinity,
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.broken_image, size: 50),
-                );
-              },
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                item.imageUrl,
+                height: 180,
+                width: double.infinity,
+                fit: BoxFit.cover,
+
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 180,
+                    width: double.infinity,
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.broken_image, size: 50),
+                  );
+                },
+              ),
             ),
 
             const SizedBox(height: 10),

@@ -16,3 +16,14 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+// Static size for Bottom Sheet
+
+// empty Bottom Sheet
+
+// Bottom Sheet Detail
+// Title
+// Source
+// Date
+// descriptin
+
+// Shimmer Effect on Cards
