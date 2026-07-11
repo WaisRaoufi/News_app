@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
 }
 // Static size for Bottom Sheet
 
-// empty Bottom Sheet
+// empty Bottom Sheet 
 
 // Bottom Sheet Detail
 // Title
@@ -27,3 +27,11 @@ class MyApp extends StatelessWidget {
 // descriptin
 
 // Shimmer Effect on Cards
+
+// flutter_native_splash: ^2.4.8
+ 
+
+// Internet Connection checker plus
+
+// Internet connection
+// empty news

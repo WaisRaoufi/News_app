@@ -9,57 +9,81 @@ class NewsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white,
-      elevation: 4,
-      margin: const EdgeInsets.all(18),
-      child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                item.imageUrl,
-                height: 180,
-                width: double.infinity,
-                fit: BoxFit.cover,
-
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    height: 180,
-                    width: double.infinity,
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.broken_image, size: 50),
-                  );
-                },
+    return InkWell(
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          builder: (context) {
+            return SizedBox(
+              height: 250,
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: SingleChildScrollView(
+                  child: Text(
+                    item.description,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ),
               ),
-            ),
+            );
+          },
+        );
+      },
+      child: Card(
+        color: Colors.white,
+        elevation: 4,
+        margin: const EdgeInsets.all(18),
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  item.imageUrl,
+                  height: 180,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
 
-            const SizedBox(height: 10),
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 180,
+                      width: double.infinity,
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.broken_image, size: 50),
+                    );
+                  },
+                ),
+              ),
 
-            Text(
-              item.title,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+              const SizedBox(height: 10),
 
-            const SizedBox(height: 5),
+              Text(
+                item.title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
 
-            Text(item.source),
-            const SizedBox(height: 10),
+              const SizedBox(height: 5),
 
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Icon(Icons.touch_app, size: 18),
-                SizedBox(width: 5),
-                Text("More Details"),
-              ],
-            ),
+              Text(item.source),
+              const SizedBox(height: 10),
 
-            Text(item.date, style: const TextStyle(color: Colors.grey)),
-          ],
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Icon(Icons.touch_app, size: 18),
+                  SizedBox(width: 5),
+                  Text("More Details"),
+                ],
+              ),
+
+              Text(item.date, style: const TextStyle(color: Colors.grey)),
+            ],
+          ),
         ),
       ),
     );
