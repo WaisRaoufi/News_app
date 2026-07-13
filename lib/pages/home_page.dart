@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:newsapp/models/items_modal.dart';
-import '../services/api_service.dart';
+import '../Network/api_service.dart';
 import '../widgets/news_card.dart';
+import '../widgets/shimmer_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -50,7 +51,7 @@ class _HomePageState extends State<HomePage> {
           await loadNews();
         },
         child: isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const ShimmerCard()
             : ListView.builder(
                 itemCount: news.length,
                 itemBuilder: (context, index) {

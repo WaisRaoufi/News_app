@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import './news_bottom_sheet.dart';
 import '../models/items_modal.dart';
 
 class NewsCard extends StatelessWidget {
@@ -14,18 +14,7 @@ class NewsCard extends StatelessWidget {
         showModalBottomSheet(
           context: context,
           builder: (context) {
-            return SizedBox(
-              height: 250,
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: SingleChildScrollView(
-                  child: Text(
-                    item.description,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ),
-              ),
-            );
+            return NewsBottomSheet(item: item);
           },
         );
       },

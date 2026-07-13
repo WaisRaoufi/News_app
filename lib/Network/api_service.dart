@@ -9,7 +9,7 @@ class ApiService {
     try {
       final response = await ApiClient.get(
         '/latest',
-        query: {'apikey': apiKey, 'q': 'anima', 'language': 'en'},
+        query: {'apikey': apiKey, 'q': 'anima', 'q': 'sport', 'language': 'en'},
       );
       return _getResults(response);
     } catch (e) {
