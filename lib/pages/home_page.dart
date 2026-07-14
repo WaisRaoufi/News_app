@@ -51,7 +51,12 @@ class _HomePageState extends State<HomePage> {
           await loadNews();
         },
         child: isLoading
-            ? const ShimmerCard()
+            ? ListView.builder(
+                itemCount: 10,
+                itemBuilder: (context, index) {
+                  return ShimmerCard();
+                },
+              )
             : ListView.builder(
                 itemCount: news.length,
                 itemBuilder: (context, index) {
