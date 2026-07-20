@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:newsapp/widgets/image_shimmer.dart';
 import './news_bottom_sheet.dart';
 import '../models/items_modal.dart';
 
@@ -29,21 +31,35 @@ class NewsCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  item.imageUrl,
+                child: CachedNetworkImage(
+                  imageUrl: item.imageUrl,
                   height: 180,
                   width: double.infinity,
                   fit: BoxFit.cover,
-
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 180,
-                      width: double.infinity,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.broken_image, size: 50),
-                    );
-                  },
+                  placeholder: (context, url) => ImageShimmer(),
+                  errorWidget: (context, url, error) => Container(
+                    height: 180,
+                    width: double.infinity,
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.broken_image, size: 50),
+                  ),
                 ),
+                // child: Image.network(
+
+                //   item.imageUrl,
+                //   height: 180,
+                //   width: double.infinity,
+                //   fit: BoxFit.cover,
+
+                //   errorBuilder: (context, error, stackTrace) {
+                //     return Container(
+                //       height: 180,
+                //       width: double.infinity,
+                //       color: Colors.grey[300],
+                //       child: const Icon(Icons.broken_image, size: 50),
+                //     );
+                //   },
+                // ),
               ),
 
               const SizedBox(height: 10),

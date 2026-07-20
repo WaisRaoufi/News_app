@@ -20,8 +20,9 @@ class _HomePageState extends State<HomePage> {
   List<ItemsModal> news = [];
   bool isLoading = true;
   bool hasInternet = true;
+  late Future<List<ItemsModal>> newsFuture;
 
-    late StreamSubscription subscription;
+  late StreamSubscription subscription;
 
   Future<bool> checkInternet() async {
     final result = await InternetConnection().hasInternetAccess;
@@ -36,29 +37,20 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    loadNews();
-      subscription = InternetConnection().onStatusChange.listen((status) {
+    newsFuture = service.getNews();
 
-    if (status == InternetStatus.connected) {
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("You are Online"),
-        ),
-      );
-      loadNews();
-
-    } else {
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("You are Offline"),
-        ),
-      );
-
-    }
-
-  });
+    subscription = InternetConnection().onStatusChange.listen((status) {
+      if (status == InternetStatus.connected) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("You are Online")));
+        loadNews();
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("You are Offline")));
+      }
+    });
   }
 
   Future<void> loadNews() async {
@@ -117,38 +109,52 @@ class _HomePageState extends State<HomePage> {
             : RefreshIndicator(
                 onRefresh: () async {
                   setState(() {
-                    isLoading = true;
+                    newsFuture = service.getNews();
                   });
                   await loadNews();
                 },
-                child: isLoading
-                    ? ListView.builder(
+                child: FutureBuilder<List<ItemsModal>>(
+                  future: newsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return ListView.builder(
                         itemCount: 10,
                         itemBuilder: (context, index) {
                           return ShimmerCard();
-                        },
-                      )
-                    : ListView.builder(
-                        itemCount: news.length,
-                        itemBuilder: (context, index) {
-                          final item = news[index];
-                          return InkWell(
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                builder: (context) {
-                                  return Padding(
-                                    padding: const EdgeInsets.all(20),
-                                    child: Text(item.description),
-                                  );
-                                },
-                              );
-                            },
-                            child: NewsCard(item: item),
-                          );
-                        },
-                      ),
+                        }, 
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return const Center(child: Text("Error"));
+                    }
+
+                    final news = snapshot.data!;
+
+                    return ListView.builder(
+                      itemCount: news.length,
+                      itemBuilder: (context, index) {
+                        final item = news[index];
+
+                        return InkWell(
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true, 
+                              builder: (context) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Text(item.description),
+                                );
+                              },
+                            );
+                          },
+                          child: NewsCard(item: item),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
       ),
     );
