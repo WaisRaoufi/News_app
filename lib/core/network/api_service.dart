@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'api_client.dart';
-import '../models/items_modal.dart';
+import '../../features/home/models/items_modal.dart';
 
 class ApiService {
   static const String apiKey = 'pub_9f7ac441e1e8496b944ee16d0f962004';
@@ -9,7 +9,7 @@ class ApiService {
     try {
       final response = await ApiClient.get(
         '/latest',
-        query: {'apikey': apiKey, 'q': 'anima', 'q': 'sport', 'language': 'en'},
+        query: {'apikey': apiKey, 'q': 'sport', 'language': 'en'},
       );
       return _getResults(response);
     } catch (e) {
@@ -17,7 +17,6 @@ class ApiService {
     }
   }
 
-  /// استخراج دیتا از response
   List<ItemsModal> _getResults(Response response) {
     final List data = response.data['results'] ?? [];
 

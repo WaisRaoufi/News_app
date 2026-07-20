@@ -22,17 +22,3 @@ class ImageShimmer extends StatelessWidget {
     );
   }
 }
-
-// Shimmer.fromColors(
-//       baseColor: Colors.grey[300]!,
-//       highlightColor: Colors.white,
-//       child: Card(
-//         color: Colors.red,
-//         margin: const EdgeInsets.all(18),
-//         child: Container(
-//           height: 350,
-//           width: double.infinity,
-//           color: Colors.red,
-//         ),
-//       ),
-//     );

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
-class ShimmerCard extends StatelessWidget {
-  const ShimmerCard({super.key});
+class CardShimmer extends StatelessWidget {
+  const CardShimmer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -81,16 +81,3 @@ class ShimmerCard extends StatelessWidget {
   }
 }
 
-// Shimmer.fromColors(
-//       baseColor: Colors.grey[300]!,
-//       highlightColor: Colors.white,
-//       child: Card(
-//         color: Colors.red,
-//         margin: const EdgeInsets.all(18),
-//         child: Container(
-//           height: 350,
-//           width: double.infinity,
-//           color: Colors.red,
-//         ),
-//       ),
-//     );

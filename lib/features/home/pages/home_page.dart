@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:newsapp/models/items_modal.dart';
-import '../Network/api_service.dart';
+import 'package:newsapp/features/shimmer/card_shimmer.dart';
+import 'package:newsapp/features/home/models/items_modal.dart';
+import '../../../core/network/api_service.dart';
 import '../widgets/news_card.dart';
-import '../widgets/shimmer_card.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'dart:async';
 
@@ -64,7 +64,6 @@ class _HomePageState extends State<HomePage> {
     }
 
     final data = await service.getNews();
-    print(data);
     setState(() {
       news = data;
       isLoading = false;
@@ -92,7 +91,7 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SvgPicture.asset(
-                      'assets/wifi.svg',
+                      'assets/images/wifi.png',
                       width: 200.0,
                       height: 200.0,
                     ),
@@ -120,7 +119,7 @@ class _HomePageState extends State<HomePage> {
                       return ListView.builder(
                         itemCount: 10,
                         itemBuilder: (context, index) {
-                          return ShimmerCard();
+                          return CardShimmer();
                         }, 
                       );
                     }
