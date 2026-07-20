@@ -2,77 +2,90 @@ import 'package:flutter/material.dart';
 import 'package:newsapp/core/constants/app_colors.dart';
 import 'package:newsapp/core/constants/app_fonts.dart';
 import 'package:newsapp/core/constants/app_sizes.dart';
+import 'package:newsapp/core/theme/app_text_theme.dart';
 
 class AppTheme {
   AppTheme._();
 
-  static ThemeData light(String languageCode) {
-    final fontFamily = AppFonts.englishFontLanguage();
-
+  static ThemeData get light {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      fontFamily: fontFamily,
+      fontFamily: AppFonts.primary,
       scaffoldBackgroundColor: AppColors.lightBackground,
+
       colorScheme: const ColorScheme.light(
         primary: AppColors.lightBackground,
         surface: AppColors.lightSurface,
-        primaryContainer: AppColors.lightTextPrimary,
-        surfaceContainer: AppColors.lightTextSecondary
+        onPrimary: AppColors.lightTextPrimary,
+        onSurface: AppColors.lightTextSecondary,
       ),
-      appBarTheme: AppBarTheme(
+
+      textTheme: AppTextTheme.light(),
+
+      appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.lightSurface,
+        foregroundColor: AppColors.lightTextPrimary,
         elevation: 0,
-      centerTitle: true,
-      titleTextStyle: TextStyle(
-        fontFamily: fontFamily,
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: AppColors.lightTextPrimary,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontFamily: AppFonts.primary,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: AppColors.lightTextPrimary,
+        ),
+        iconTheme: IconThemeData(color: AppColors.lightTextSecondary),
       ),
-      iconTheme: const IconThemeData(color: AppColors.lightTextSecondary),
-      ),
+
       cardTheme: CardThemeData(
-        elevation: 4,
+        elevation: 0,
+        color: AppColors.lightSurface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSizes.radiusMedium)
-        )
-      )
+          borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
+          side: BorderSide(color: AppColors.darkTextSecondary, width: 0.9),
+        ),
+      ),
     );
   }
 
-  static ThemeData dark(String languageCode) {
-    final fontFamily = AppFonts.englishFontLanguage();
-
+  static ThemeData get dark {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      fontFamily: fontFamily,
+      fontFamily: AppFonts.primary,
       scaffoldBackgroundColor: AppColors.darkBackground,
+
       colorScheme: const ColorScheme.dark(
         primary: AppColors.darkBackground,
         surface: AppColors.darkSurface,
-        primaryContainer: AppColors.darkTextPrimary,
-        surfaceContainer: AppColors.darkTextSecondary
+        onPrimary: AppColors.darkTextPrimary,
+        onSurface: AppColors.darkTextSecondary,
       ),
-      appBarTheme: AppBarTheme(
+
+      textTheme: AppTextTheme.dark(),
+
+      appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.darkSurface,
+        foregroundColor: AppColors.darkTextPrimary,
         elevation: 0,
-      centerTitle: true,
-      titleTextStyle: TextStyle(
-        fontFamily: fontFamily,
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: AppColors.darkTextPrimary,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontFamily: AppFonts.primary,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: AppColors.darkTextPrimary,
+        ),
+        iconTheme: IconThemeData(color: AppColors.darkTextSecondary),
       ),
-      iconTheme: const IconThemeData(color: AppColors.darkTextSecondary),
-      ),
+
       cardTheme: CardThemeData(
-        elevation: 4,
+        elevation: 0,
+        color: AppColors.darkSurface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSizes.radiusMedium)
-        )
-      )
+          borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
+          side: BorderSide(color: AppColors.lightTextPrimary, width: 0.9),
+        ),
+      ),
     );
   }
 }

@@ -6,74 +6,54 @@ class CardShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: SizedBox(
-        height: 350,
-        width: double.infinity,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(15),
-            child: Shimmer.fromColors(
-              baseColor: Colors.grey[300]!,
-              highlightColor: Colors.white,
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 180,
-                    width: double.infinity,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final bool isDarkMode = theme.brightness == Brightness.dark;
 
-                  SizedBox(height: 10),
-                  SizedBox(
-                    height: 30,
-                    width: double.infinity,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
+    final Color cardColor = colorScheme.surface;
 
-                  SizedBox(height: 10),
-                  SizedBox(
-                    height: 15,
-                    width: double.infinity,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
+    final Color baseColor = Color.alphaBlend(
+      colorScheme.onSurface.withValues(alpha: isDarkMode ? 0.10 : 0.08),
+      cardColor,
+    );
 
-                  SizedBox(height: 10),
-                  SizedBox(
-                    height: 15,
-                    width: double.infinity,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
+    final Color highlightColor = Color.alphaBlend(
+      colorScheme.onSurface.withValues(alpha: isDarkMode ? 0.25 : 0.02),
+      cardColor,
+    );
 
-                  SizedBox(height: 10),
-                ],
+    return Card(
+              margin: const EdgeInsets.all(18),
+
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Shimmer.fromColors(
+          baseColor: baseColor,
+          highlightColor: highlightColor,
+          period: const Duration(milliseconds: 1400),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SkeletonBox(
+                height: 180,
+                width: double.infinity,
+                color: highlightColor,
               ),
-            ),
+              SizedBox(height: 10),
+              SkeletonBox(
+                height: 30,
+                width: double.infinity,
+                color: highlightColor,
+              ),
+              SizedBox(height: 10),
+              SkeletonBox(
+                height: 15,
+                width: double.infinity,
+                color: highlightColor,
+              ),
+              SizedBox(height: 10),
+              SkeletonBox(height: 15, width: 230, color: highlightColor),
+            ],
           ),
         ),
       ),
@@ -81,3 +61,28 @@ class CardShimmer extends StatelessWidget {
   }
 }
 
+class SkeletonBox extends StatelessWidget {
+  final double height;
+  final double width;
+  final Color color;
+  const SkeletonBox({
+    super.key,
+    required this.height,
+    required this.width,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: height,
+      width: width,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+        ),
+      ),
+    );
+  }
+}

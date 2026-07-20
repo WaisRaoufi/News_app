@@ -1,29 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:newsapp/core/constants/app_colors.dart';
+import 'package:newsapp/core/constants/app_fonts.dart';
 
 class AppTextTheme {
   AppTextTheme._();
 
-  static TextTheme textTheme({
-    required String fontFamily,
-    required Color primaryTextColor,
-    required Color secondaryTextColor,
-  }) {
-    return TextTheme(
+  static TextTheme light() {
+    return  TextTheme(
       headlineLarge: TextStyle(
-        fontFamily: fontFamily,
-        fontSize: 20,
-        color: primaryTextColor,
+        fontFamily: AppFonts.primary,
+        fontSize: 22,
+        color: AppColors.lightTextPrimary,
+      ),
+      bodyLarge: TextStyle(
+        fontFamily: AppFonts.primary,
+        fontSize: 16,
+        color: AppColors.lightTextSecondary,
       ),
       bodyMedium: TextStyle(
-        fontSize: 16,
-        fontFamily: fontFamily,
-        color: secondaryTextColor,
-      ),
-      bodySmall: TextStyle(
-        fontFamily: fontFamily,
+        fontFamily: AppFonts.primary,
         fontSize: 14,
-        color: secondaryTextColor,
+        color: AppColors.lightTextSecondary,
       ),
+    );
+  }
+
+  static TextTheme dark() {
+    return  TextTheme(
+      headlineLarge: TextStyle(
+        fontFamily: AppFonts.primary,
+        fontSize: 22,
+        color: AppColors.darkTextPrimary,
+      ),
+      bodyLarge: TextStyle(
+        fontFamily: AppFonts.primary,
+        fontSize: 16,
+        color: AppColors.darkTextSecondary,
+      ),
+      bodyMedium: TextStyle(
+        fontFamily: AppFonts.primary,
+        fontSize: 14,
+        color: AppColors.darkTextSecondary,
+      ),
+    
     );
   }
 }

@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:newsapp/features/home/models/items_modal.dart';
 import 'package:newsapp/features/shimmer/image_shimmer.dart';
 import 'news_bottom_sheet.dart';
-import '../models/items_modal.dart';
 
 class NewsCard extends StatelessWidget {
   final ItemsModal item;
@@ -21,8 +21,6 @@ class NewsCard extends StatelessWidget {
         );
       },
       child: Card(
-        color: Colors.white,
-        elevation: 4,
         margin: const EdgeInsets.all(18),
         child: Padding(
           padding: const EdgeInsets.all(15),
@@ -40,7 +38,7 @@ class NewsCard extends StatelessWidget {
                   errorWidget: (context, url, error) => Container(
                     height: 180,
                     width: double.infinity,
-                    color: Colors.grey[300],
+                    color: Theme.of(context).colorScheme.primary,
                     child: const Icon(Icons.broken_image, size: 50),
                   ),
                 ),
@@ -50,27 +48,26 @@ class NewsCard extends StatelessWidget {
 
               Text(
                 item.title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
                 ),
               ),
 
               const SizedBox(height: 5),
 
-              Text(item.source),
+              Text(item.source, style: Theme.of(context).textTheme.bodyMedium,),
               const SizedBox(height: 10),
 
-              const Row(
+               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Icon(Icons.touch_app, size: 18),
                   SizedBox(width: 5),
-                  Text("More Details"),
+                  Text("More Details", style: Theme.of(context).textTheme.bodyMedium,),
                 ],
               ),
 
-              Text(item.date, style: const TextStyle(color: Colors.grey)),
+              Text(item.date, style: Theme.of(context).textTheme.bodyMedium),
             ],
           ),
         ),

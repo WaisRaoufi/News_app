@@ -13,6 +13,7 @@ class NewsApi {
     final response = await apiService.get(
       '/latest',
       query: {
+        'apikey': 'pub_9f7ac441e1e8496b944ee16d0f962004',
         'q': 'sport',
         'language': 'en',
       },

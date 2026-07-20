@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:newsapp/core/network/api_client.dart';
 import 'package:newsapp/core/network/api_service.dart';
+import 'package:newsapp/core/theme/theme_controller.dart';
 import 'package:newsapp/features/home/api/news_api.dart';
 import 'package:newsapp/features/home/models/items_modal.dart';
 import 'package:newsapp/features/shimmer/card_shimmer.dart';
@@ -33,14 +34,10 @@ class _HomePageState extends State<HomePage> {
     final apiClient = ApiClient();
 
     // ApiService uses Dio from ApiClient.
-    final apiService = ApiService(
-      dio: apiClient.dio,
-    );
+    final apiService = ApiService(dio: apiClient.dio);
 
     // NewsApi uses ApiService.
-    _newsApi = NewsApi(
-      apiService: apiService,
-    );
+    _newsApi = NewsApi(apiService: apiService);
 
     // First request.
     _newsFuture = _fetchNews();
@@ -49,8 +46,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _listenToInternetChanges() {
-    _internetSubscription =
-        InternetConnection().onStatusChange.listen((status) {
+    _internetSubscription = InternetConnection().onStatusChange.listen((
+      status,
+    ) {
       if (!mounted) return;
 
       final isConnected = status == InternetStatus.connected;
@@ -63,11 +61,8 @@ class _HomePageState extends State<HomePage> {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text(
-              isConnected
-                  ? 'You are online'
-                  : 'You are offline',
-            ),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            content: Text(isConnected ? 'You are online' : 'You are offline'),
           ),
         );
 
@@ -78,8 +73,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<ItemsModal>> _fetchNews() async {
-    final isConnected =
-        await InternetConnection().hasInternetAccess;
+    final isConnected = await InternetConnection().hasInternetAccess;
 
     if (mounted) {
       setState(() {
@@ -107,32 +101,50 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text(
-          'News App',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
+        actionsPadding: EdgeInsets.symmetric(horizontal: 10),
+        title: const Text('News App'),
+        actions: [
+          ValueListenableBuilder<ThemeMode>(
+            valueListenable: ThemeController.themeMode,
+            builder: (context, themeMode, child) {
+              final bool isDarkMode = themeMode == ThemeMode.dark;
+
+              return IconButton(
+                tooltip: isDarkMode
+                    ? 'Switch to light mode'
+                    : 'Switch to dark mode',
+                onPressed: ThemeController.toggleTheme,
+                icon: Icon(
+                  isDarkMode
+                      ? Icons.light_mode_rounded
+                      : Icons.dark_mode_rounded,
+                ),
+              );
+            },
           ),
-        ),
+        ],
       ),
       body: RefreshIndicator(
+        color: Theme.of(context).colorScheme.onPrimary,
         onRefresh: _refreshNews,
         child: !_hasInternet
             ? _buildNoInternet()
             : FutureBuilder<List<ItemsModal>>(
                 future: _newsFuture,
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return _buildLoading();
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: 10,
+                      itemBuilder: (context, index) {
+                        return CardShimmer();
+                      },
+                    );
                   }
 
                   if (snapshot.hasError) {
-                    return _buildError(
-                      snapshot.error.toString(),
-                    );
+                    return _buildError(snapshot.error.toString());
                   }
 
                   final news = snapshot.data ?? [];
@@ -142,8 +154,7 @@ class _HomePageState extends State<HomePage> {
                   }
 
                   return ListView.builder(
-                    physics:
-                        const AlwaysScrollableScrollPhysics(),
+                    physics: const AlwaysScrollableScrollPhysics(),
                     itemCount: news.length,
                     itemBuilder: (context, index) {
                       final item = news[index];
@@ -157,17 +168,13 @@ class _HomePageState extends State<HomePage> {
                               return SafeArea(
                                 child: Padding(
                                   padding: const EdgeInsets.all(20),
-                                  child: Text(
-                                    item.description,
-                                  ),
+                                  child: Text(item.description),
                                 ),
                               );
                             },
                           );
                         },
-                        child: NewsCard(
-                          item: item,
-                        ),
+                        child: NewsCard(item: item),
                       );
                     },
                   );
@@ -177,38 +184,24 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildLoading() {
-    return ListView.builder(
-      physics: const AlwaysScrollableScrollPhysics(),
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return CardShimmer();
-      },
-    );
-  }
-
   Widget _buildNoInternet() {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(
-        top: 140,
-        left: 24,
-        right: 24,
-      ),
+      padding: const EdgeInsets.only(top: 140, left: 24, right: 24),
       children: [
         Image.asset(
           'assets/images/wifi.png',
-          width: 200,
-          height: 200,
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height * 0.3,
         ),
         const SizedBox(height: 20),
         Text(
           'No internet connection',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
@@ -219,15 +212,9 @@ class _HomePageState extends State<HomePage> {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.only(top: 200),
       children: const [
-        Icon(
-          Icons.article_outlined,
-          size: 70,
-        ),
+        Icon(Icons.article_outlined, size: 70),
         SizedBox(height: 16),
-        Text(
-          'No news found',
-          textAlign: TextAlign.center,
-        ),
+        Text('No news found', textAlign: TextAlign.center),
       ],
     );
   }
@@ -235,35 +222,19 @@ class _HomePageState extends State<HomePage> {
   Widget _buildError(String message) {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(
-        top: 180,
-        left: 24,
-        right: 24,
-      ),
+      padding: const EdgeInsets.only(top: 180, left: 24, right: 24),
       children: [
-        const Icon(
-          Icons.error_outline,
-          size: 70,
-        ),
+        const Icon(Icons.error_outline, size: 70),
         const SizedBox(height: 16),
         const Text(
           'Could not load news',
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
-        Text(
-          message,
-          textAlign: TextAlign.center,
-        ),
+        Text(message, textAlign: TextAlign.center),
         const SizedBox(height: 20),
-        FilledButton(
-          onPressed: _refreshNews,
-          child: const Text('Try again'),
-        ),
+        FilledButton(onPressed: _refreshNews, child: const Text('Try again')),
       ],
     );
   }

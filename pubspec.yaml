@@ -61,7 +61,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images
+    - assets/images/
 
     
 
@@ -85,8 +85,8 @@ flutter:
   # see https://flutter.dev/to/font-from-package
   
 flutter_native_splash:
-  color: "#E1E6E1"
-  image: assets/logo_2.png
+  color: "#e1e6e1"
+  image: assets/images/logo_2.png
 
   android: true
   ios: true
@@ -95,5 +95,5 @@ flutter_native_splash:
   android_gravity: center
 
   android_12:
-    color: "#E1E6E1"
-    image: assets/logo_2.png
+    color: "#e1e6e1"
+    image: assets/images/logo_2.png
