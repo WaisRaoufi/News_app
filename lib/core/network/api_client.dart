@@ -1,48 +1,37 @@
 import 'package:dio/dio.dart';
+import '../config/app_config.dart';
 
 class ApiClient {
-  static final Dio dio = Dio(
-    BaseOptions(
-      baseUrl: "https://newsdata.io/api/1",
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-      headers: {"Content-Type": "application/json"},
-    ),
-  );
+  late final Dio dio;
 
-  /// GET request
-  static Future<Response> get(
-    String path, {
-    Map<String, dynamic>? query,
-  }) async {
-    try {
-      final response = await dio.get(path, queryParameters: query);
+  ApiClient() {
+    dio = Dio(
+      BaseOptions(
+        baseUrl: AppConfig.baseUrl,
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
+        sendTimeout: const Duration(seconds: 20),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      ),
+    );
 
-      return response;
-    } on DioException catch (e) {
-      throw Exception(_handleError(e));
-    }
-  }
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (
+          RequestOptions options,
+          RequestInterceptorHandler handler,
+        ) {
+          options.queryParameters.putIfAbsent(
+            'apikey',
+            () => AppConfig.apiKey,
+          );
 
-  /// POST request (اختیاری)
-  static Future<Response> post(
-    String path, {
-    Map<String, dynamic>? data,
-  }) async {
-    try {
-      final response = await dio.post(path, data: data);
-
-      return response;
-    } on DioException catch (e) {
-      throw Exception(_handleError(e));
-    }
-  }
-
-  static String _handleError(DioException e) {
-    if (e.response != null) {
-      return e.response?.data.toString() ?? "Server error";
-    } else {
-      return "No internet connection";
-    }
+          handler.next(options);
+        },
+      ),
+    );
   }
 }

@@ -1,25 +1,24 @@
 import 'package:dio/dio.dart';
-import 'api_client.dart';
-import '../../features/home/models/items_modal.dart';
 
 class ApiService {
-  static const String apiKey = 'pub_9f7ac441e1e8496b944ee16d0f962004';
+  final Dio dio;
+  ApiService({required this.dio});
 
-  Future<List<ItemsModal>> getNews() async {
+  Future<Response> get(String path, {Map<String, dynamic>? query}) async {
     try {
-      final response = await ApiClient.get(
-        '/latest',
-        query: {'apikey': apiKey, 'q': 'sport', 'language': 'en'},
-      );
-      return _getResults(response);
-    } catch (e) {
-      return [];
+      final response = await dio.get(path, queryParameters: query);
+
+      return response;
+    } on DioException catch (e) {
+      throw Exception(handleError(e));
     }
   }
 
-  List<ItemsModal> _getResults(Response response) {
-    final List data = response.data['results'] ?? [];
-
-    return data.map((json) => ItemsModal.fromJson(json)).toList();
+  static String handleError(DioException e) {
+    if (e.response != null) {
+      return e.response?.data.toString() ?? "Server error";
+    } else {
+      return "No internet connection";
+    }
   }
 }
