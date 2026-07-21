@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:newsapp/core/constants/app_sizes.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CardShimmer extends StatelessWidget {
@@ -23,10 +24,10 @@ class CardShimmer extends StatelessWidget {
     );
 
     return Card(
-              margin: const EdgeInsets.all(18),
+              margin: const EdgeInsets.all(AppSizes.paddingMidium),
 
       child: Padding(
-        padding: const EdgeInsets.all(15),
+        padding: const EdgeInsets.all(AppSizes.paddingMidium),
         child: Shimmer.fromColors(
           baseColor: baseColor,
           highlightColor: highlightColor,
@@ -80,7 +81,7 @@ class SkeletonBox extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.all(Radius.circular(8)),
+          borderRadius: BorderRadius.all(Radius.circular(AppSizes.radiusMedium)),
         ),
       ),
     );

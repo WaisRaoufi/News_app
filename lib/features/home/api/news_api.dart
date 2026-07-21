@@ -5,9 +5,7 @@ import 'package:newsapp/features/home/models/items_modal.dart';
 class NewsApi {
   final ApiService apiService;
 
-  NewsApi({
-    required this.apiService,
-  });
+  NewsApi({required this.apiService});
 
   Future<List<ItemsModal>> getNews() async {
     final response = await apiService.get(
@@ -36,11 +34,7 @@ class NewsApi {
     }
 
     return results
-        .map(
-          (json) => ItemsModal.fromJson(
-            json as Map<String, dynamic>,
-          ),
-        )
+        .map((json) => ItemsModal.fromJson(json as Map<String, dynamic>))
         .toList();
   }
 }

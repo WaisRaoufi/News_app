@@ -14,4 +14,7 @@ class AppColors {
   static const Color darkSurface = Color(0xFF18231D);
   static const Color darkTextPrimary = Color(0xFFF9FAFB);
   static const Color darkTextSecondary = Color(0xFFD1D5DB);
+
+  // cecece
+  // 535353
   }

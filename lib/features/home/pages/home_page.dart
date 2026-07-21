@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:newsapp/core/network/api_client.dart';
 import 'package:newsapp/core/network/api_service.dart';
+import 'package:newsapp/core/network/internet_connection_service.dart';
 import 'package:newsapp/core/theme/theme_controller.dart';
 import 'package:newsapp/features/home/api/news_api.dart';
 import 'package:newsapp/features/home/models/items_modal.dart';
-import 'package:newsapp/features/shimmer/card_shimmer.dart';
-
-import '../widgets/news_card.dart';
+import 'package:newsapp/features/home/widgets/home_body.dart';
+import 'package:newsapp/features/home/widgets/news_details_bottom_sheet.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,89 +20,195 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final NewsApi _newsApi;
-  late Future<List<ItemsModal>> _newsFuture;
+  late final InternetConnectionService _internetService;
 
   StreamSubscription<InternetStatus>? _internetSubscription;
 
-  bool _hasInternet = true;
+  late Future<List<ItemsModal>> _newsFuture;
+  bool? _hasInternet;
+  bool _showInternetState = false;
+  bool _isReloadingAfterReconnect = false;
+  bool _receivedInitialInternetStatus = false;
 
   @override
   void initState() {
     super.initState();
 
-    // ApiClient creates Dio and adds the API key automatically.
-    final apiClient = ApiClient();
+    _initializeDependencies();
+    _listenToInternetChanges();
+    _newsFuture = _loadInitialNews();
+  }
 
-    // ApiService uses Dio from ApiClient.
-    final apiService = ApiService(dio: apiClient.dio);
+  void _initializeDependencies() {
+    final ApiClient apiClient = ApiClient();
 
-    // NewsApi uses ApiService.
+    final ApiService apiService = ApiService(dio: apiClient.dio);
+
     _newsApi = NewsApi(apiService: apiService);
 
-    // First request.
-    _newsFuture = _fetchNews();
-
-    _listenToInternetChanges();
+    _internetService = InternetConnectionService();
   }
 
   void _listenToInternetChanges() {
-    _internetSubscription = InternetConnection().onStatusChange.listen((
-      status,
-    ) {
-      if (!mounted) return;
-
-      final isConnected = status == InternetStatus.connected;
-
-      setState(() {
-        _hasInternet = isConnected;
-      });
-
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            content: Text(isConnected ? 'You are online' : 'You are offline'),
-          ),
-        );
-
-      if (isConnected) {
-        _refreshNews();
-      }
-    });
+    _internetSubscription = _internetService.onStatusChange.listen(
+      _handleInternetStatusChange,
+    );
   }
 
-  Future<List<ItemsModal>> _fetchNews() async {
-    final isConnected = await InternetConnection().hasInternetAccess;
+  void _handleInternetStatusChange(InternetStatus status) {
+    if (!mounted) return;
 
-    if (mounted) {
+    final bool isConnected = status == InternetStatus.connected;
+    if (!_receivedInitialInternetStatus) {
+      _receivedInitialInternetStatus = true;
+      _hasInternet = isConnected;
+      return;
+    }
+    if (_hasInternet == isConnected) {
+      return;
+    }
+
+    _hasInternet = isConnected;
+    _showInternetMessage(isConnected: isConnected);
+    if (isConnected && _showInternetState) {
+      unawaited(_reloadNewsAfterReconnect());
+    }
+  }
+
+  Future<void> _reloadNewsAfterReconnect() async {
+    if (_isReloadingAfterReconnect) return;
+
+    _isReloadingAfterReconnect = true;
+
+    try {
+      final bool isConnected = await _internetService.checkInternetAccess();
+
+      if (!mounted || !isConnected) return;
+
+      final Future<List<ItemsModal>> newFuture = _newsApi.getNews();
+
       setState(() {
-        _hasInternet = isConnected;
+        _hasInternet = true;
+        _showInternetState = false;
+        _newsFuture = newFuture;
       });
+
+      try {
+        await newFuture;
+      } catch (_) {}
+    } finally {
+      _isReloadingAfterReconnect = false;
+    }
+  }
+
+  Future<List<ItemsModal>> _loadInitialNews() async {
+    final bool isConnected = await _internetService.checkInternetAccess();
+
+    if (!mounted) {
+      return <ItemsModal>[];
     }
 
     if (!isConnected) {
-      return [];
+      setState(() {
+        _hasInternet = false;
+        _showInternetState = true;
+      });
+
+      return <ItemsModal>[];
     }
+
+    setState(() {
+      _hasInternet = true;
+      _showInternetState = false;
+    });
 
     return _newsApi.getNews();
   }
 
   Future<void> _refreshNews() async {
-    final newFuture = _fetchNews();
+    final bool isConnected = await _internetService.checkInternetAccess();
+
+    if (!mounted) return;
+
+    if (!isConnected) {
+      final bool shouldShowSnackbar = _hasInternet != false;
+
+      setState(() {
+        _hasInternet = false;
+        _showInternetState = true;
+      });
+
+      if (shouldShowSnackbar) {
+        _showInternetMessage(isConnected: false);
+      }
+
+      return;
+    }
+
+    final Future<List<ItemsModal>> newFuture = _newsApi.getNews();
 
     setState(() {
+      _hasInternet = true;
+      _showInternetState = false;
       _newsFuture = newFuture;
     });
 
-    await newFuture;
+    try {
+      await newFuture;
+    } catch (_) {}
+  }
+
+  void _retryNews() {
+    unawaited(_refreshNews());
+  }
+
+  void _showInternetMessage({required bool isConnected}) {
+    if (!mounted) return;
+
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: isConnected
+              ? colorScheme.onPrimary
+              : colorScheme.error,
+          content: Row(
+            children: [
+              Icon(
+                isConnected ? Icons.wifi_rounded : Icons.wifi_off_rounded,
+                color: isConnected ? colorScheme.primary : colorScheme.onError,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  isConnected
+                      ? 'You are back online'
+                      : 'Your internet connection was lost',
+                  style: TextStyle(
+                    color: isConnected
+                        ? colorScheme.primary
+                        : colorScheme.onError,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+  }
+
+  void _showNewsDetails(ItemsModal item) {
+    unawaited(NewsDetailsBottomSheet.show(context: context, item: item));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actionsPadding: EdgeInsets.symmetric(horizontal: 10),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 10),
         title: const Text('News App'),
         actions: [
           ValueListenableBuilder<ThemeMode>(
@@ -125,117 +231,13 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        color: Theme.of(context).colorScheme.onPrimary,
+      body: HomeBody(
+        showInternetState: _showInternetState,
+        newsFuture: _newsFuture,
         onRefresh: _refreshNews,
-        child: !_hasInternet
-            ? _buildNoInternet()
-            : FutureBuilder<List<ItemsModal>>(
-                future: _newsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return ListView.builder(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: 10,
-                      itemBuilder: (context, index) {
-                        return CardShimmer();
-                      },
-                    );
-                  }
-
-                  if (snapshot.hasError) {
-                    return _buildError(snapshot.error.toString());
-                  }
-
-                  final news = snapshot.data ?? [];
-
-                  if (news.isEmpty) {
-                    return _buildEmpty();
-                  }
-
-                  return ListView.builder(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: news.length,
-                    itemBuilder: (context, index) {
-                      final item = news[index];
-
-                      return InkWell(
-                        onTap: () {
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            builder: (context) {
-                              return SafeArea(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(20),
-                                  child: Text(item.description),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                        child: NewsCard(item: item),
-                      );
-                    },
-                  );
-                },
-              ),
+        onRetry: _retryNews,
+        onNewsPressed: _showNewsDetails,
       ),
-    );
-  }
-
-  Widget _buildNoInternet() {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(top: 140, left: 24, right: 24),
-      children: [
-        Image.asset(
-          'assets/images/wifi.png',
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height * 0.3,
-        ),
-        const SizedBox(height: 20),
-        Text(
-          'No internet connection',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEmpty() {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(top: 200),
-      children: const [
-        Icon(Icons.article_outlined, size: 70),
-        SizedBox(height: 16),
-        Text('No news found', textAlign: TextAlign.center),
-      ],
-    );
-  }
-
-  Widget _buildError(String message) {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(top: 180, left: 24, right: 24),
-      children: [
-        const Icon(Icons.error_outline, size: 70),
-        const SizedBox(height: 16),
-        const Text(
-          'Could not load news',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Text(message, textAlign: TextAlign.center),
-        const SizedBox(height: 20),
-        FilledButton(onPressed: _refreshNews, child: const Text('Try again')),
-      ],
     );
   }
 

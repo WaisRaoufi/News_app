@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:newsapp/core/constants/app_sizes.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ImageShimmer extends StatelessWidget {
@@ -59,7 +60,7 @@ class SkeletonBox extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.all(Radius.circular(8)),
+          borderRadius: BorderRadius.all(Radius.circular(AppSizes.radiusMedium)),
         ),
       ),
     );
