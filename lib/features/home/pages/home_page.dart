@@ -101,29 +101,30 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<List<ItemsModal>> _loadInitialNews() async {
-    final bool isConnected = await _internetService.checkInternetAccess();
+ Future<List<ItemsModal>> _loadInitialNews() async {
+  try {
+    final news = await _newsApi.getNews();
 
-    if (!mounted) {
-      return <ItemsModal>[];
+    if (mounted) {
+      setState(() {
+        _hasInternet = true;
+        _showInternetState = false;
+      });
     }
 
-    if (!isConnected) {
+    return news;
+
+  } catch (e) {
+    if (mounted) {
       setState(() {
         _hasInternet = false;
         _showInternetState = true;
       });
-
-      return <ItemsModal>[];
     }
 
-    setState(() {
-      _hasInternet = true;
-      _showInternetState = false;
-    });
-
-    return _newsApi.getNews();
+    return [];
   }
+}
 
   Future<void> _refreshNews() async {
     final bool isConnected = await _internetService.checkInternetAccess();
